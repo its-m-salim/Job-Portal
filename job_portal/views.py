@@ -29,7 +29,7 @@ def home_page(request):
 
     category = request.GET.get('category')
 
-    if category.isdecimal():
+    if category and category.isdecimal():
         vacancies = vacancies.filter(category_id = int(category))
 
     employment = request.GET.get('employment')
@@ -39,12 +39,12 @@ def home_page(request):
     
     salary = request.GET.get('salary')
 
-    if salary.isdigit():
+    if salary and salary.isdigit():
         vacancies = vacancies.filter(salary_to__gte = int(salary))
 
     experience = request.GET.get('experience')
 
-    if experience.isdigit():
+    if experience and experience.isdigit():
         vacancies = vacancies.filter(experience_required__lte = int(experience))
 
     sort = request.GET.get('sort', "new")
@@ -292,7 +292,7 @@ def create_company(request):
     if request.method == 'POST':
         data = request.POST
     
-        name = data.get['name'].strip()
+        name = data['name'].strip()
         description = data['description'].strip()
         city = data['city'].strip()
 
@@ -345,7 +345,7 @@ def create_vacancy(request):
         category_id = data.get('category', "").strip()
         category = None
 
-        if category_id.isdigit():
+        if category_id and category_id.isdigit():
             category = categories.filter(pk = category_id).first()
 
         if category is None:
@@ -419,7 +419,7 @@ def create_vacancy(request):
 
 
 @login_required
-@permission_required('job_portal.view_vacavcies', raise_exception=True)
+@permission_required('job_portal.view_vacancy', raise_exception=True)
 def my_vacancies(request):
 
  
@@ -427,8 +427,8 @@ def my_vacancies(request):
     if company is None:
         return redirect('create_company')
 
-    vacancies = Vacancy.objects.filter(company = company).select_related('applications').annotate(
-        applications = Count('applications'),
+    vacancies = Vacancy.objects.filter(company = company).annotate(
+        total_apps = Count('applications'),
         pending = Count('applications', filter= Q(applications__status = 'pending'))
     ).order_by('-created_at')
 
@@ -446,6 +446,7 @@ def vacancy_info(request, id):
     if not vacancy.is_active and not is_owner:
         return redirect('home')
 
+    first_apply = False
     if is_condidate(request.user):
         first_apply = Applications.objects.filter(vacancy = vacancy,candidate = request.user).exists()
 
@@ -468,6 +469,9 @@ def vacancy_info(request, id):
 def close_vacancy(request, id):
 
     vacancy = get_object_or_404(Vacancy.objects.select_related('company'), pk = id)
+
+    if vacancy.company.owner != request.user:
+        return redirect('home')
 
     if request.method == 'POST':
         vacancy.is_active = False
@@ -493,7 +497,7 @@ def apply_vacancy(request, id):
     if request.method == 'POST':
         letter = request.POST.get('letter', "")
         if not letter:
-            return render('apply_vacancy')
+            return render(request, 'apply_vacancy.html', {'vacancy': vacancy, 'error': 'Введите сопроводительное письмо'})
         Applications.objects.create(
             vacancy = vacancy,
             candidate = request.user,
@@ -579,7 +583,7 @@ def edit_company(request):
 
     if request.method == 'POST':
         data = request.POST
-        name = data.get['name'].strip()
+        name = data['name'].strip()
         description = data['description'].strip()
         city = data['city'].strip()
 
@@ -619,7 +623,7 @@ def edit_candidate_profile(request):
             if experience.isdigit():
                 experience = int(data['experience'])
             else:
-                return render(request, 'candidate_form.html', {"error": "Вводите корректное число или оставьте пустым"})
+                return render(request, 'edit_candidate_profile.html', {"profile": profile, "error": "Вводите корректное число или оставьте пустым"})
         else:
             experience = 0
 
@@ -630,6 +634,8 @@ def edit_candidate_profile(request):
         profile.full_name = data['full_name']
         profile.city = data['city']
         profile.about = data['about'] 
+        profile.skills = data['skills']
+        profile.experience = experience
 
         profile.save()
 
@@ -653,7 +659,11 @@ def edit_vacancy(request, id):
 
     categories = Category.objects.filter(is_active = True)
 
-    
+    context = {
+        "vacancy": vacancy,
+        "categories": categories,
+        "employment_types": Vacancy.EMPLOYMENT_TYPE
+    }
 
     if request.method == "POST":
         data = request.POST
@@ -666,11 +676,12 @@ def edit_vacancy(request, id):
         category_id = data.get('category')
         category = None
 
-        if category_id.isdigit():
+        if category_id and category_id.isdigit():
             category = categories.filter(pk = category_id).first()
 
         if category is None:
-            return render(request, 'edit_vacancy.html')
+            context["error"] = "Выберите категорию"
+            return render(request, 'edit_vacancy.html', context)
 
         employment = data.get('employment')
 
@@ -679,6 +690,9 @@ def edit_vacancy(request, id):
         if salary_from:
             if salary_from.isdigit():
                 salary_from = int(salary_from)
+            else:
+                context["error"] = "Зарплата «от» должна быть числом"
+                return render(request, 'edit_vacancy.html', context)
         else:
             salary_from = None
 
@@ -687,11 +701,15 @@ def edit_vacancy(request, id):
         if salary_to:
             if salary_to.isdigit():
                 salary_to = int(salary_to)
+            else:
+                context["error"] = "Зарплата «до» должна быть числом"
+                return render(request, 'edit_vacancy.html', context)
         else:
             salary_to = None
            
         if salary_from is not None and salary_to is not None and salary_from > salary_to:
-            return render(request, 'edit_vacancy.html',{"error": "Зарплата «от» не может быть больше «до»"})
+            context["error"] = "Зарплата «от» не может быть больше «до»"
+            return render(request, 'edit_vacancy.html', context)
 
         experience = data.get('experience')
 
@@ -699,7 +717,8 @@ def edit_vacancy(request, id):
             if experience.isdigit():
                 experience = int(experience)
             else:
-                return render(request, 'edit_vacancy.html', {"error": "Опыт должен быть числом или пустым"})
+                context["error"] = "Опыт должен быть числом или пустым"
+                return render(request, 'edit_vacancy.html', context)
         else:
             experience = 0
 
@@ -716,10 +735,4 @@ def edit_vacancy(request, id):
 
         return redirect("my_vacancies")
     
-    context = {
-        "vacancy": vacancy,
-        "categories": categories,
-        "employment_types": Vacancy.EMPLOYMENT_TYPE
-    }
-
     return render(request, 'edit_vacancy.html', context)

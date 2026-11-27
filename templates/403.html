@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Нет доступа{% endblock %}
+
+{% block content %}
+<div class="narrow section">
+  <h1>Нет доступа</h1>
+  <p class="lead">Этот раздел доступен другой роли. Например, вакансии размещают только работодатели, а откликаются только соискатели.</p>
+  <a class="btn btn-primary" href="{% url 'home' %}">На главную</a>
+</div>
+{% endblock %}

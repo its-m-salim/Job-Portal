@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Новая вакансия{% endblock %}
+
+{% block content %}
+<div class="narrow section">
+  <a class="back" href="{% url 'my_vacancies' %}">Мои вакансии</a>
+  <h1>Новая вакансия</h1>
+  <p class="lead">Чем точнее описание, тем лучше отклики.</p>
+
+  {% include "includes/error.html" %}
+
+  <form method="post" class="form form-card">
+    {% csrf_token %}
+    {# data приходит из view при ошибке — так поля не очищаются #}
+    {% include "includes/vacancy_fields.html" with v=data %}
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Опубликовать вакансию</button>
+      <a class="btn btn-ghost" href="{% url 'my_vacancies' %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Отклик на вакансию{% endblock %}
+
+{% block content %}
+<div class="narrow section">
+  <a class="back" href="{% url 'vacancy_info' vacancy.id %}">К вакансии</a>
+  <h1>Отклик на вакансию</h1>
+
+  <div class="mini-vacancy">
+    {% include "includes/logo.html" with company=vacancy.company %}
+    <div>
+      <strong>{{ vacancy.title }}</strong>
+      <p class="muted small">{{ vacancy.company.name }}</p>
+    </div>
+  </div>
+
+  {% include "includes/error.html" %}
+
+  <form method="post" class="form form-card">
+    {% csrf_token %}
+    <div class="field">
+      <label class="req" for="letter">Сопроводительное письмо</label>
+      <textarea id="letter" name="letter" rows="8" required
+                placeholder="Коротко расскажите, чем вы можете быть полезны компании">{{ request.POST.letter }}</textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Отправить отклик</button>
+      <a class="btn btn-ghost" href="{% url 'vacancy_info' vacancy.id %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

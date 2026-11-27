@@ -1,12 +1,111 @@
 {% extends "base.html" %}
-
-{% block title %}Главная{% endblock %}
+{% block title %}Поиск вакансий{% endblock %}
 
 {% block content %}
-    <h1>Главная страница</h1>
-    {% if user.is_authenticated %}
-        <p>Здравствуйте, {{ user.username }}!</p>
-    {% else %}
-        <p>Войдите или зарегистрируйтесь.</p>
-    {% endif %}
+{# Одна форма на всю страницу: и поиск вверху, и фильтры сбоку отправляются вместе (GET) #}
+<form method="get">
+
+  <section class="hero">
+    <div class="container">
+      <h1>Найдите работу, которая вам подходит</h1>
+      <div class="search" role="search">
+        <input type="search" name="q" value="{{ data.q }}" placeholder="Должность, навык или компания" aria-label="Что искать">
+        <input type="text" name="city" value="{{ data.city }}" placeholder="Город" aria-label="Город">
+        <button class="btn btn-sun" type="submit">Найти</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="container catalog">
+
+    <details class="filters" open>
+      <summary>Фильтры</summary>
+
+      <div class="field">
+        <label for="category">Категория</label>
+        <select id="category" name="category" data-autosubmit>
+          <option value="">Все категории</option>
+          {% for c in categories %}
+            <option value="{{ c.id }}"{% if data.category == c.id|stringformat:"s" %} selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <fieldset class="field">
+        <legend>Тип занятости</legend>
+        <div class="choice">
+          <label>
+            <input type="radio" name="employment" value="" data-autosubmit{% if not data.employment %} checked{% endif %}>
+            <span>Любой</span>
+          </label>
+          {% for key, label in employment_types %}
+            <label>
+              <input type="radio" name="employment" value="{{ key }}" data-autosubmit{% if data.employment == key %} checked{% endif %}>
+              <span>{{ label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="salary">Зарплата не меньше</label>
+        <input id="salary" name="salary" type="number" min="0" value="{{ data.salary }}" placeholder="Например, 50000">
+      </div>
+
+      <div class="field">
+        <label for="experience">Мой опыт, лет</label>
+        <input id="experience" name="experience" type="number" min="0" value="{{ data.experience }}" placeholder="0">
+        <span class="hint">Покажем вакансии, где нужно не больше.</span>
+      </div>
+
+      <button class="btn btn-primary btn-block" type="submit">Применить</button>
+      <a class="btn btn-ghost btn-block" href="{% url 'home' %}">Сбросить</a>
+    </details>
+
+    <section class="results">
+      <div class="results-head">
+        <h2>Найдено вакансий: {{ vacancies|length }}</h2>
+        <select name="sort" aria-label="Сортировка" data-autosubmit>
+          <option value="new"{% if data.sort != 'old' and data.sort != 'salary' %} selected{% endif %}>Сначала новые</option>
+          <option value="old"{% if data.sort == 'old' %} selected{% endif %}>Сначала старые</option>
+          <option value="salary"{% if data.sort == 'salary' %} selected{% endif %}>По зарплате</option>
+        </select>
+      </div>
+
+      {% if vacancies %}
+        <ul class="rows">
+          {% for v in vacancies %}
+            <li class="row is-link">
+              {% include "includes/logo.html" with company=v.company %}
+              <div class="row-main">
+                <h3 class="row-title"><a href="{% url 'vacancy_info' v.id %}">{{ v.title }}</a></h3>
+                <div class="row-meta">
+                  <span>{{ v.company.name }}</span>
+                  <span>{{ v.city }}</span>
+                </div>
+                <div class="chips">
+                  <span class="chip">{{ v.get_employment_display }}</span>
+                  <span class="chip">{% if v.experience_required %}Опыт от {{ v.experience_required }} г.{% else %}Без опыта{% endif %}</span>
+                </div>
+              </div>
+              <div class="row-side">
+                {% include "includes/salary.html" with v=v %}
+                <div class="muted small">{{ v.created_at|timesince }} назад</div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="rows">
+          <div class="empty">
+            <h3>Ничего не нашли</h3>
+            <p>Попробуйте изменить запрос или убрать часть фильтров.</p>
+            <a class="btn btn-ghost" href="{% url 'home' %}">Сбросить фильтры</a>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+  </div>
+</form>
 {% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Мои вакансии{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-head">
+    <div class="company-head">
+      {% include "includes/logo.html" with company=company size="lg" %}
+      <div>
+        <h1>{{ company.name }}</h1>
+        <p class="muted">{{ company.city }}</p>
+      </div>
+    </div>
+    <div class="head-actions">
+      <a class="btn btn-ghost" href="{% url 'edit_company' %}">Редактировать компанию</a>
+      <a class="btn btn-primary" href="{% url 'create_vacancy' %}">Новая вакансия</a>
+    </div>
+  </div>
+
+  {% if vacancies %}
+    <ul class="rows">
+      {% for v in vacancies %}
+        <li class="row row-wide">
+          <div class="row-main">
+            <h2 class="row-title"><a href="{% url 'vacancy_info' v.id %}">{{ v.title }}</a></h2>
+            <div class="row-meta">
+              <span>{{ v.city }}</span>
+              <span>{{ v.get_employment_display }}</span>
+              <span>Создана {{ v.created_at|date:"d.m.Y" }}</span>
+            </div>
+            <div class="chips">
+              {% if v.is_active %}
+                <span class="badge badge-active">Активна</span>
+              {% else %}
+                <span class="badge badge-closed">Закрыта</span>
+              {% endif %}
+              {# total_apps и pending — счётчики из annotate() во view #}
+              <span class="chip">Откликов: {{ v.total_apps }}</span>
+              {% if v.pending %}<span class="badge status-pending">Новых: {{ v.pending }}</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="row-actions">
+            <a class="btn btn-ghost btn-sm" href="{% url 'vacancy_applications' v.id %}">Отклики</a>
+            <a class="btn btn-ghost btn-sm" href="{% url 'edit_vacancy' v.id %}">Изменить</a>
+            {% if v.is_active %}
+              <form method="post" action="{% url 'close_vacancy' v.id %}" data-confirm="Закрыть вакансию? Она пропадёт из поиска.">
+                {% csrf_token %}
+                <button class="btn btn-danger btn-sm" type="submit">Закрыть</button>
+              </form>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="rows">
+      <div class="empty">
+        <h3>Вакансий пока нет</h3>
+        <p>Опубликуйте первую вакансию, и соискатели смогут на неё откликнуться.</p>
+        <a class="btn btn-primary" href="{% url 'create_vacancy' %}">Создать вакансию</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

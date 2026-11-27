@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Страница не найдена{% endblock %}
+
+{% block content %}
+<div class="narrow section">
+  <h1>Страница не найдена</h1>
+  <p class="lead">Возможно, вакансию удалили или в адресе опечатка.</p>
+  <a class="btn btn-primary" href="{% url 'home' %}">К вакансиям</a>
+</div>
+{% endblock %}

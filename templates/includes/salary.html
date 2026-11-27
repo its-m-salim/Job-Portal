@@ -1,0 +1,2 @@
+{# Зарплата вакансии. Параметр: v (вакансия). Валюту можно дописать после чисел, например: ₽ или сом #}
+<span class="salary{% if not v.salary_from and not v.salary_to %} none{% endif %}">{% if v.salary_from and v.salary_to %}{{ v.salary_from|floatformat:"0g" }} – {{ v.salary_to|floatformat:"0g" }}{% elif v.salary_from %}от {{ v.salary_from|floatformat:"0g" }}{% elif v.salary_to %}до {{ v.salary_to|floatformat:"0g" }}{% else %}Зарплата не указана{% endif %}</span>

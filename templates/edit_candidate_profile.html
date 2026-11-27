@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Мой профиль{% endblock %}
+
+{% block content %}
+<div class="narrow section">
+  <h1>Мой профиль</h1>
+  <p class="lead">Актуальная анкета повышает шансы на ответ.</p>
+
+  {% include "includes/error.html" %}
+
+  <form method="post" enctype="multipart/form-data" class="form form-card">
+    {% csrf_token %}
+    {% include "includes/candidate_fields.html" with p=profile %}
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Сохранить изменения</button>
+      <a class="btn btn-ghost" href="{% url 'home' %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

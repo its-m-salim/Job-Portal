@@ -1,34 +1,19 @@
 {% extends "base.html" %}
-
 {% block title %}Создание компании{% endblock %}
 
 {% block content %}
-    <h1>Создание компании</h1>
+<div class="narrow section">
+  <h1>Расскажите о компании</h1>
+  <p class="lead">Это увидят соискатели на страницах ваших вакансий.</p>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+  {% include "includes/error.html" %}
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <p>
-            <label>Название:</label><br>
-            <input type="text" name="name" required>
-        </p>
-        <p>
-            <label>Описание:</label><br>
-            <textarea name="description" rows="4" cols="40" required></textarea>
-        </p>
-        <p>
-            <label>Город:</label><br>
-            <input type="text" name="city" required>
-        </p>
-        <p>
-            <label>Логотип:</label><br>
-            <input type="file" name="logo" accept="image/*">
-        </p>
-
-        <button type="submit">Создать</button>
-    </form>
+  <form method="post" enctype="multipart/form-data" class="form form-card">
+    {% csrf_token %}
+    {% include "includes/company_fields.html" %}
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Создать компанию</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

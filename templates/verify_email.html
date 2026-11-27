@@ -1,26 +1,33 @@
 {% extends "base.html" %}
-
 {% block title %}Подтверждение почты{% endblock %}
 
 {% block content %}
-    <h1>Подтверждение почты</h1>
-    <p>Мы отправили 6-значный код на вашу почту.</p>
+<section class="auth">
+  {% include "includes/auth_side.html" with title="Осталось подтвердить почту" text="Мы отправили 6-значный код на адрес, который вы указали. Он нужен, чтобы убедиться, что почта ваша." %}
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+  <div class="auth-main">
+    <div class="auth-box">
+      <h1>Введите код</h1>
+      <p class="lead">Код из письма: шесть цифр.</p>
 
-    <form method="post">
+      {% include "includes/error.html" %}
+
+      <form method="post" class="form">
         {% csrf_token %}
-        <p>
-            <label>Код:</label><br>
-            <input type="text" name="code" maxlength="6" required>
-        </p>
-        <button type="submit">Подтвердить</button>
-    </form>
+        <div class="field">
+          <label class="req" for="code">Код подтверждения</label>
+          <input id="code" name="code" class="code-input" type="text" required autofocus
+                 inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6"
+                 autocomplete="one-time-code" placeholder="000000">
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Подтвердить</button>
+      </form>
 
-    <form method="post" action="{% url 'resend_code' user_id %}">
+      <form method="post" action="{% url 'resend_code' user_id %}" class="resend">
         {% csrf_token %}
-        <button type="submit">Отправить код ещё раз</button>
-    </form>
+        Не пришло письмо? <button class="link-btn" type="submit">Отправить код ещё раз</button>
+      </form>
+    </div>
+  </div>
+</section>
 {% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Отклики: {{ vacancy.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <a class="back" href="{% url 'my_vacancies' %}">Мои вакансии</a>
+
+  <div class="page-head">
+    <div>
+      <h1>Отклики</h1>
+      <p class="muted"><a href="{% url 'vacancy_info' vacancy.id %}">{{ vacancy.title }}</a></p>
+    </div>
+  </div>
+
+  {# Фильтр по статусу: ссылки вида ?status=pending #}
+  <nav class="tabs" aria-label="Фильтр по статусу">
+    <a href="{% url 'vacancy_applications' vacancy.id %}"{% if not current_status %} class="active"{% endif %}>Все</a>
+    {% for key, label in statuses %}
+      <a href="?status={{ key }}"{% if current_status == key %} class="active"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  {% if applications %}
+    <ul class="rows">
+      {% for a in applications %}
+        {% with profile=a.candidate.candidateprofile %}
+        <li class="app">
+          <div class="app-head">
+            <div>
+              <h2 class="row-title">{{ profile.full_name|default:a.candidate.username }}</h2>
+              <div class="row-meta">
+                {% if profile %}
+                  <span>{{ profile.city }}</span>
+                  <span>Опыт: {{ profile.experience }} л.</span>
+                {% endif %}
+                {% if a.candidate.email %}<a href="mailto:{{ a.candidate.email }}">{{ a.candidate.email }}</a>{% endif %}
+              </div>
+            </div>
+            <span class="badge status-{{ a.status }}">{{ a.get_status_display }}</span>
+          </div>
+
+          {% if profile.skills %}<p><strong>Навыки:</strong> {{ profile.skills }}</p>{% endif %}
+          {% if a.letter %}<div class="letter">{{ a.letter|linebreaksbr }}</div>{% endif %}
+
+          <div class="app-actions">
+            {% if profile.resume %}
+              <a class="btn btn-ghost btn-sm" href="{{ profile.resume.url }}" target="_blank" rel="noopener">Открыть резюме</a>
+            {% endif %}
+            {% if a.status != 'accepted' %}
+              <form method="post" action="{% url 'edit_application' a.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="accepted">
+                <button class="btn btn-primary btn-sm" type="submit">Принять</button>
+              </form>
+            {% endif %}
+            {% if a.status != 'rejected' %}
+              <form method="post" action="{% url 'edit_application' a.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="status" value="rejected">
+                <button class="btn btn-danger btn-sm" type="submit">Отклонить</button>
+              </form>
+            {% endif %}
+          </div>
+
+          <p class="muted small">Получен {{ a.created_at|date:"d.m.Y H:i" }}</p>
+        </li>
+        {% endwith %}
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="rows">
+      <div class="empty">
+        <h3>Откликов нет</h3>
+        <p>{% if current_status %}С таким статусом откликов нет. Выберите другой фильтр.{% else %}Как только кто-то откликнется, отклик появится здесь.{% endif %}</p>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

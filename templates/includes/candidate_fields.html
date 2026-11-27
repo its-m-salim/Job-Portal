@@ -1,0 +1,41 @@
+{# Поля анкеты соискателя. Параметр p — профиль (при редактировании), при создании его нет #}
+<p class="hint">Поля со звёздочкой обязательны.</p>
+
+<div class="field">
+  <label class="req" for="full_name">Имя и фамилия</label>
+  <input id="full_name" name="full_name" type="text" required maxlength="100" autocomplete="name"
+         value="{% firstof p.full_name request.POST.full_name %}">
+</div>
+
+<div class="field">
+  <label class="req" for="city">Город</label>
+  <input id="city" name="city" type="text" required maxlength="100" autocomplete="address-level2"
+         value="{% firstof p.city request.POST.city %}">
+</div>
+
+<div class="field">
+  <label class="req" for="skills">Навыки</label>
+  <textarea id="skills" name="skills" required rows="3"
+            placeholder="Например: Python, Django, SQL, Git">{% firstof p.skills request.POST.skills %}</textarea>
+</div>
+
+<div class="field">
+  <label for="about">О себе</label>
+  <textarea id="about" name="about" rows="4"
+            placeholder="Коротко о вашем опыте и целях">{% firstof p.about request.POST.about %}</textarea>
+</div>
+
+<div class="grid-2">
+  <div class="field">
+    <label for="experience">Опыт, лет</label>
+    <input id="experience" name="experience" type="number" min="0" placeholder="0"
+           value="{% if p %}{{ p.experience }}{% else %}{{ request.POST.experience }}{% endif %}">
+  </div>
+  <div class="field">
+    <label for="resume">Резюме</label>
+    <input id="resume" name="resume" type="file" accept=".pdf,.doc,.docx">
+  </div>
+</div>
+{% if p.resume %}
+  <p class="hint"><a href="{{ p.resume.url }}" target="_blank" rel="noopener">Открыть текущее резюме</a>. Выберите новый файл, чтобы заменить его.</p>
+{% endif %}

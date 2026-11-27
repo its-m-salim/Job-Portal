@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ vacancy.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <a class="back" href="{% url 'home' %}">К списку вакансий</a>
+
+  <div class="detail">
+
+    <article>
+      <header class="detail-head">
+        {% include "includes/logo.html" with company=vacancy.company size="lg" %}
+        <div>
+          <h1>{{ vacancy.title }}</h1>
+          <p class="muted">{{ vacancy.company.name }}, {{ vacancy.city }}</p>
+        </div>
+      </header>
+
+      {% if not vacancy.is_active %}
+        <div class="alert alert-warn">Вакансия закрыта и не видна в поиске.</div>
+      {% endif %}
+
+      <p class="detail-salary">{% include "includes/salary.html" with v=vacancy %}</p>
+
+      <div class="chips">
+        <span class="chip">{{ vacancy.get_employment_display }}</span>
+        <span class="chip">{% if vacancy.experience_required %}Опыт от {{ vacancy.experience_required }} г.{% else %}Без опыта{% endif %}</span>
+        <span class="chip">{{ vacancy.category.name }}</span>
+      </div>
+
+      <h2>Описание</h2>
+      <div class="prose">{{ vacancy.description|linebreaks }}</div>
+    </article>
+
+    <aside class="panel side">
+      {% if can_apply %}
+        <a class="btn btn-primary btn-block" href="{% url 'apply_vacancy' vacancy.id %}">Откликнуться</a>
+      {% elif already_applied %}
+        <div class="note-ok">Вы уже откликнулись</div>
+        <a class="btn btn-ghost btn-block" href="{% url 'my_applications' %}">Мои отклики</a>
+      {% elif is_owner %}
+        <p>Откликов: <strong>{{ applications_count }}</strong></p>
+        <a class="btn btn-primary btn-block" href="{% url 'vacancy_applications' vacancy.id %}">Смотреть отклики</a>
+        <a class="btn btn-ghost btn-block" href="{% url 'edit_vacancy' vacancy.id %}">Редактировать</a>
+      {% else %}
+        <p class="muted">Откликаться на вакансии могут только соискатели.</p>
+      {% endif %}
+
+      <hr>
+
+      <h3>{{ vacancy.company.name }}</h3>
+      <p class="muted small">{{ vacancy.company.city }}</p>
+      <p class="small">{{ vacancy.company.description|truncatewords:35 }}</p>
+      <p class="muted small">Опубликовано {{ vacancy.created_at|date:"d.m.Y" }}</p>
+    </aside>
+
+  </div>
+</div>
+{% endblock %}

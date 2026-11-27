@@ -1,0 +1,28 @@
+{# Поля компании. Параметр c — компания (при редактировании), при создании её нет #}
+<p class="hint">Поля со звёздочкой обязательны.</p>
+
+<div class="field">
+  <label class="req" for="name">Название компании</label>
+  <input id="name" name="name" type="text" required maxlength="100" autocomplete="organization"
+         value="{% firstof c.name request.POST.name %}">
+</div>
+
+<div class="field">
+  <label class="req" for="city">Город</label>
+  <input id="city" name="city" type="text" required maxlength="100"
+         value="{% firstof c.city request.POST.city %}">
+</div>
+
+<div class="field">
+  <label class="req" for="description">Описание</label>
+  <textarea id="description" name="description" required rows="5"
+            placeholder="Чем занимается компания и чем она хороша как работодатель">{% firstof c.description request.POST.description %}</textarea>
+</div>
+
+<div class="field">
+  <label for="logo">Логотип</label>
+  {% if c.logo %}
+    <div class="current-logo">{% include "includes/logo.html" with company=c size="lg" %}</div>
+  {% endif %}
+  <input id="logo" name="logo" type="file" accept="image/*">
+</div>

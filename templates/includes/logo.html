@@ -1,0 +1,2 @@
+{# Логотип компании или первая буква названия. Параметры: company, size ("lg" — крупный) #}
+<span class="logo-mark {{ size }}">{% if company.logo %}<img src="{{ company.logo.url }}" alt="">{% else %}{{ company.name|slice:":1"|upper }}{% endif %}</span>

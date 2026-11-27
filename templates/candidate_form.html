@@ -1,42 +1,20 @@
 {% extends "base.html" %}
-
-{% block title %}Профиль соискателя{% endblock %}
+{% block title %}Анкета соискателя{% endblock %}
 
 {% block content %}
-    <h1>Профиль соискателя</h1>
+<div class="narrow section">
+  <h1>Расскажите о себе</h1>
+  <p class="lead">Эти данные увидят работодатели, когда вы откликнетесь на вакансию.</p>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+  {% include "includes/error.html" %}
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-
-        <p>
-            <label>ФИО:</label><br>
-            <input type="text" name="full_name" required>
-        </p>
-        <p>
-            <label>Город:</label><br>
-            <input type="text" name="city" required>
-        </p>
-        <p>
-            <label>О себе:</label><br>
-            <textarea name="about" rows="4" cols="40"></textarea>
-        </p>
-        <p>
-            <label>Навыки:</label><br>
-            <textarea name="skills" rows="4" cols="40" required></textarea>
-        </p>
-        <p>
-            <label>Опыт (лет):</label><br>
-            <input type="number" name="experience" min="0">
-        </p>
-        <p>
-            <label>Резюме (файл):</label><br>
-            <input type="file" name="resume">
-        </p>
-
-        <button type="submit">Сохранить</button>
-    </form>
+  {# Без action: форма отправляется на тот же адрес, с которого открыта страница #}
+  <form method="post" enctype="multipart/form-data" class="form form-card">
+    {% csrf_token %}
+    {% include "includes/candidate_fields.html" %}
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Сохранить анкету</button>
+    </div>
+  </form>
+</div>
 {% endblock %}

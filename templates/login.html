@@ -1,28 +1,39 @@
 {% extends "base.html" %}
-
 {% block title %}Вход{% endblock %}
 
 {% block content %}
-    <h1>Вход</h1>
+<section class="auth">
+  {% include "includes/auth_side.html" with title="С возвращением" text="Войдите, чтобы откликаться на вакансии, разбирать отклики и следить за ответами." %}
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+  <div class="auth-main">
+    <div class="auth-box">
+      <h1>Вход</h1>
+      <p class="lead">Введите логин и пароль от аккаунта.</p>
 
-    <form method="post">
+      {% include "includes/error.html" %}
+
+      <form method="post" class="form">
         {% csrf_token %}
 
-        <p>
-            <label>Логин:</label><br>
-            <input type="text" name="username" required>
-        </p>
-        <p>
-            <label>Пароль:</label><br>
-            <input type="password" name="password" required>
-        </p>
+        <div class="field">
+          <label class="req" for="username">Логин</label>
+          <input id="username" name="username" type="text" required autofocus
+                 autocomplete="username" value="{{ request.POST.username }}">
+        </div>
 
-        <button type="submit">Войти</button>
-    </form>
+        <div class="field">
+          <label class="req" for="password">Пароль</label>
+          <div class="pass">
+            <input id="password" name="password" type="password" required autocomplete="current-password">
+            <button class="pass-toggle" type="button">Показать</button>
+          </div>
+        </div>
 
-    <p>Нет аккаунта? <a href="{% url 'registration' %}">Регистрация</a></p>
+        <button class="btn btn-primary btn-block" type="submit">Войти</button>
+      </form>
+
+      <p class="auth-alt">Нет аккаунта? <a href="{% url 'registration' %}">Зарегистрироваться</a></p>
+    </div>
+  </div>
+</section>
 {% endblock %}

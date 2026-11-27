@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Редактирование вакансии{% endblock %}
+
+{% block content %}
+<div class="narrow section">
+  <a class="back" href="{% url 'my_vacancies' %}">Мои вакансии</a>
+  <h1>Редактирование вакансии</h1>
+  <p class="lead">Изменения появятся в поиске сразу после сохранения.</p>
+
+  {% include "includes/error.html" %}
+
+  <form method="post" class="form form-card">
+    {% csrf_token %}
+    {% include "includes/vacancy_fields.html" with v=vacancy %}
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Сохранить изменения</button>
+      <a class="btn btn-ghost" href="{% url 'my_vacancies' %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

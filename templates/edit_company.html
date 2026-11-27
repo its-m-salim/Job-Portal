@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Редактирование компании{% endblock %}
+
+{% block content %}
+<div class="narrow section">
+  <a class="back" href="{% url 'my_vacancies' %}">Мои вакансии</a>
+  <h1>Редактирование компании</h1>
+  <p class="lead">Изменения сразу появятся на страницах всех ваших вакансий.</p>
+
+  {% include "includes/error.html" %}
+
+  <form method="post" enctype="multipart/form-data" class="form form-card">
+    {% csrf_token %}
+    {% include "includes/company_fields.html" with c=company %}
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Сохранить изменения</button>
+      <a class="btn btn-ghost" href="{% url 'my_vacancies' %}">Отмена</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

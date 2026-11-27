@@ -1,0 +1,61 @@
+{# Поля вакансии. Параметр v — вакансия (при редактировании) или request.POST (при ошибке создания) #}
+<p class="hint">Поля со звёздочкой обязательны.</p>
+
+<div class="field">
+  <label class="req" for="title">Название вакансии</label>
+  <input id="title" name="title" type="text" required maxlength="100"
+         placeholder="Например: Python-разработчик" value="{{ v.title }}">
+</div>
+
+<div class="grid-2">
+  <div class="field">
+    <label class="req" for="category">Категория</label>
+    {# sel — выбранная категория: из вакансии (category_id) или из отправленной формы (category) #}
+    {% firstof v.category_id v.category as sel %}
+    <select id="category" name="category" required>
+      <option value="">Выберите категорию</option>
+      {% for c in categories %}
+        <option value="{{ c.id }}"{% if sel == c.id|stringformat:"s" %} selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="field">
+    <label class="req" for="employment">Тип занятости</label>
+    <select id="employment" name="employment" required>
+      <option value="">Выберите тип</option>
+      {% for key, label in employment_types %}
+        <option value="{{ key }}"{% if v.employment == key %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<div class="field">
+  <label class="req" for="city">Город</label>
+  <input id="city" name="city" type="text" required maxlength="100" value="{{ v.city }}">
+</div>
+
+<div class="field">
+  <label class="req" for="description">Описание</label>
+  <textarea id="description" name="description" required rows="8"
+            placeholder="Обязанности, требования, условия">{{ v.description }}</textarea>
+</div>
+
+<div class="grid-2">
+  <div class="field">
+    <label for="salary_from">Зарплата от</label>
+    <input id="salary_from" name="salary_from" type="number" min="0" value="{{ v.salary_from|default_if_none:'' }}">
+  </div>
+  <div class="field">
+    <label for="salary_to">Зарплата до</label>
+    <input id="salary_to" name="salary_to" type="number" min="0" value="{{ v.salary_to|default_if_none:'' }}">
+  </div>
+</div>
+
+<div class="field">
+  <label for="experience">Нужный опыт, лет</label>
+  <input id="experience" name="experience" type="number" min="0" placeholder="0"
+         value="{% firstof v.experience_required v.experience %}">
+  <span class="hint">Оставьте пустым, если опыт не нужен.</span>
+</div>

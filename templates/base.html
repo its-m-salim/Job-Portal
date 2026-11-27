@@ -1,24 +1,72 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Job Portal{% endblock %}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Вакансии{% endblock %} — JobPortal</title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  {# Шрифты Google: Onest (текст) и Unbounded (заголовки). Без интернета подставится системный шрифт #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600&display=swap">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 
-    <nav>
-        <a href="{% url 'home' %}">Главная</a>
-        {% if user.is_authenticated %}
-            | {{ user.username }}
-            | <a href="{% url 'logout' %}">Выйти</a>
-        {% else %}
-            | <a href="{% url 'login' %}">Войти</a>
-            | <a href="{% url 'registration' %}">Регистрация</a>
+<header class="nav" id="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="{% url 'home' %}">
+      <img src="{% static 'img/favicon.svg' %}" alt="">JobPortal
+    </a>
+
+    <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false" aria-controls="nav-menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+
+    <nav class="nav-menu" id="nav-menu">
+      <div class="nav-links">
+        <a href="{% url 'home' %}">Вакансии</a>
+        {# Роль определяем по правам: у работодателя есть add_vacancy, у соискателя — add_applications #}
+        {% if perms.job_portal.add_vacancy %}
+          <a href="{% url 'my_vacancies' %}">Мои вакансии</a>
+          <a href="{% url 'edit_company' %}">Компания</a>
+        {% elif perms.job_portal.add_applications %}
+          <a href="{% url 'my_applications' %}">Мои отклики</a>
+          <a href="{% url 'edit_candidate_profile' %}">Профиль</a>
         {% endif %}
+      </div>
+
+      <div class="nav-actions">
+        {% if user.is_authenticated %}
+          {% if perms.job_portal.add_vacancy %}
+            <a class="btn btn-primary btn-sm" href="{% url 'create_vacancy' %}">Разместить вакансию</a>
+          {% elif not perms.job_portal.add_applications %}
+            <a class="btn btn-primary btn-sm" href="{% url 'choose_role' %}">Выбрать роль</a>
+          {% endif %}
+          <span class="nav-user">{{ user.username }}</span>
+          {# Выход — через POST-форму, так безопаснее, чем ссылка #}
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-ghost btn-sm" type="submit">Выйти</button>
+          </form>
+        {% else %}
+          <a class="btn btn-ghost btn-sm" href="{% url 'login' %}">Войти</a>
+          <a class="btn btn-primary btn-sm" href="{% url 'registration' %}">Регистрация</a>
+        {% endif %}
+      </div>
     </nav>
-    <hr>
+  </div>
+</header>
 
-    {% block content %}{% endblock %}
+<main>
+  {% block content %}{% endblock %}
+</main>
 
+<footer class="footer">
+  <div class="container">© {% now "Y" %} JobPortal</div>
+</footer>
+
+<script src="{% static 'js/main.js' %}" defer></script>
 </body>
 </html>

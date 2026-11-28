@@ -46,6 +46,16 @@
         <p class="muted">Откликаться на вакансии могут только соискатели.</p>
       {% endif %}
 
+      {% if can_apply or already_applied %}
+        <form method="post" action="{% url 'add_favorite' vacancy.id %}">
+          {% csrf_token %}
+          <button class="btn btn-ghost btn-block fav-toggle{% if is_favorite %} is-active{% endif %}" type="submit">
+            {% include "includes/heart.html" %}
+            {% if is_favorite %}Удалить из избранного{% else %}В избранное{% endif %}
+          </button>
+        </form>
+      {% endif %}
+
       <hr>
 
       <h3>{{ vacancy.company.name }}</h3>

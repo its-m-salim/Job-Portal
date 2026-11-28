@@ -33,6 +33,7 @@
           <a href="{% url 'edit_company' %}">Компания</a>
         {% elif perms.job_portal.add_applications %}
           <a href="{% url 'my_applications' %}">Мои отклики</a>
+          <a href="{% url 'my_favorites' %}">Избранное</a>
           <a href="{% url 'edit_candidate_profile' %}">Профиль</a>
         {% endif %}
       </div>

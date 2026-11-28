@@ -73,28 +73,11 @@
       </div>
 
       {% if vacancies %}
-        <ul class="rows">
+        <div class="cards">
           {% for v in vacancies %}
-            <li class="row is-link">
-              {% include "includes/logo.html" with company=v.company %}
-              <div class="row-main">
-                <h3 class="row-title"><a href="{% url 'vacancy_info' v.id %}">{{ v.title }}</a></h3>
-                <div class="row-meta">
-                  <span>{{ v.company.name }}</span>
-                  <span>{{ v.city }}</span>
-                </div>
-                <div class="chips">
-                  <span class="chip">{{ v.get_employment_display }}</span>
-                  <span class="chip">{% if v.experience_required %}Опыт от {{ v.experience_required }} г.{% else %}Без опыта{% endif %}</span>
-                </div>
-              </div>
-              <div class="row-side">
-                {% include "includes/salary.html" with v=v %}
-                <div class="muted small">{{ v.created_at|timesince }} назад</div>
-              </div>
-            </li>
+            {% include "includes/vacancy_card.html" %}
           {% endfor %}
-        </ul>
+        </div>
       {% else %}
         <div class="rows">
           <div class="empty">

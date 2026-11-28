@@ -58,6 +58,13 @@ def home_page(request):
     else:
         vacancies = vacancies.order_by('-created_at')
 
+    favorite_ids = None
+
+    if request.user.is_authenticated and is_condidate(request.user):
+        favorite_ids = set(
+            Favorite.objects.filter(user = request.user).values_list('vacancy_id', flat=True)
+        )
+
     context = {
         "vacancies": vacancies,
         "data": request.GET,
@@ -451,13 +458,17 @@ def vacancy_info(request, id):
         first_apply = Applications.objects.filter(vacancy = vacancy,candidate = request.user).exists()
 
     can_apply = is_condidate(request.user) and vacancy.is_active and not first_apply
+    is_favorite = False
+    if is_condidate(request.user):
+        is_favorite = Favorite.objects.filter(user = request.user, vacancy = vacancy).exists()
 
     context = {
         "vacancy": vacancy,
         "is_owner": is_owner,
         "already_applied": first_apply,
         "can_apply": can_apply,
-        "applications_count": vacancy.applications.count() if is_owner else None
+        "applications_count": vacancy.applications.count() if is_owner else None,
+        "is_favorite": is_favorite,
     }
 
     return render(request, 'vacancy_info.html', context)
@@ -736,3 +747,52 @@ def edit_vacancy(request, id):
         return redirect("my_vacancies")
     
     return render(request, 'edit_vacancy.html', context)
+
+
+@login_required
+def add_favorite(request, vacancy_id):
+
+    if not is_condidate(request.user):
+        return redirect('home')
+
+    vacancy = get_object_or_404(Vacancy, pk = vacancy_id)
+
+    favorite = Favorite.objects.filter(
+        user=request.user,
+        vacancy=vacancy
+    )
+
+    if favorite.exists():
+        favorite.delete()
+    else:
+        Favorite.objects.create(
+            user = request.user,
+            vacancy = vacancy
+        )
+
+    return redirect('vacancy_info', id = vacancy.id)
+
+
+
+@login_required
+def remove_favorite(request, favorite_id):
+
+    if not is_condidate(request.user):
+        return redirect('home')
+
+    favorite = get_object_or_404(Favorite, id = favorite_id, user = request.user)
+
+    favorite.delete()
+
+    return redirect('my_favorites')
+
+
+
+@login_required
+def my_favorites(request):
+    if not is_condidate(request.user):
+        return redirect('home')
+
+    favorites = Favorite.objects.filter(user=request.user).select_related('vacancy', 'vacancy__company',  'vacancy__category')
+
+    return render(request, 'my_favorites.html', {'favorites': favorites})

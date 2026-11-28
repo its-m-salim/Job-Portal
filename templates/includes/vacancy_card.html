@@ -1,0 +1,48 @@
+{# Карточка вакансии. Параметры: v — вакансия, fav — запись избранного (только на странице «Избранное») #}
+<article class="vcard{% if not v.is_active %} is-closed{% endif %}">
+ 
+  <div class="vcard-top">
+    {% include "includes/logo.html" with company=v.company %}
+    <div class="vcard-company">
+      <strong>{{ v.company.name }}</strong>
+      <span>{{ v.city }}</span>
+    </div>
+ 
+    {% if fav %}
+      <form method="post" action="{% url 'remove_favorite' fav.id %}" class="fav-form">
+        {% csrf_token %}
+        <button class="fav-btn is-active" type="submit">{% include "includes/heart.html" %}Удалить</button>
+      </form>
+    {% elif favorite_ids is not None %}
+      <form method="post" action="{% url 'add_favorite' v.id %}" class="fav-form">
+        {% csrf_token %}
+        {% if v.id in favorite_ids %}
+          <button class="fav-btn is-active" type="submit">{% include "includes/heart.html" %}Удалить</button>
+        {% else %}
+          <button class="fav-btn" type="submit">{% include "includes/heart.html" %}В избранное</button>
+        {% endif %}
+      </form>
+    {% endif %}
+  </div>
+ 
+  <h3 class="vcard-title">
+    {% if v.is_active %}
+      <a href="{% url 'vacancy_info' v.id %}">{{ v.title }}</a>
+    {% else %}
+      {{ v.title }}
+    {% endif %}
+  </h3>
+ 
+  <div class="chips">
+    {% if not v.is_active %}<span class="badge badge-closed">Закрыта</span>{% endif %}
+    <span class="chip">{{ v.get_employment_display }}</span>
+    <span class="chip">{% if v.experience_required %}Опыт от {{ v.experience_required }} г.{% else %}Без опыта{% endif %}</span>
+  </div>
+ 
+  <div class="vcard-foot">
+    {% include "includes/salary.html" with v=v %}
+    <span class="muted small">{% if fav %}Добавлено {{ fav.created_at|date:"d.m.Y" }}{% else %}{{ v.created_at|timesince }} назад{% endif %}</span>
+  </div>
+ 
+</article>
+ 

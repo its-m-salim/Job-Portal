@@ -332,6 +332,54 @@ details.mine p { margin: 8px 0 0; color: var(--ink-2); }
 .role input:checked + .role-card { border-color: var(--accent); background: var(--accent-soft); }
 .role input:focus-visible + .role-card { outline: 3px solid var(--accent); outline-offset: 2px; }
 
+/* ===== Карточки вакансий ===== */
+.cards {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+}
+.cards-page { padding-bottom: 64px; }
+.vcard {
+  position: relative; display: flex; flex-direction: column; gap: 14px;
+  padding: 22px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--r-l);
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.vcard:hover {
+  border-color: var(--accent); transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(14, 27, 44, .08);
+}
+.vcard-top { display: flex; align-items: center; gap: 12px; }
+.vcard-company { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.vcard-company strong { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; }
+.vcard-company span { color: var(--muted); font-size: .875rem; }
+.vcard-title { font-size: 1.15rem; font-weight: 650; line-height: 1.3; }
+.vcard-title a { color: var(--ink); }
+.vcard-title a:hover { color: var(--accent); text-decoration: none; }
+.vcard-title a::after { content: ""; position: absolute; inset: 0; border-radius: var(--r-l); } /* вся карточка кликабельна */
+.vcard .chips { margin-top: 0; }
+.vcard-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-top: auto; padding-top: 16px; border-top: 1px dashed var(--line);
+}
+.vcard-foot .salary { font-size: 1.05rem; }
+.vcard.is-closed { background: #FAFBFC; }
+.vcard.is-closed .logo-mark { filter: grayscale(1); opacity: .7; }
+
+/* Кнопка «избранное» */
+.fav-form { position: relative; z-index: 2; flex-shrink: 0; margin: 0; } /* выше ссылки на всю карточку */
+.fav-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+  background: #fff; color: var(--ink-2);
+  border: 1.5px solid var(--line); border-radius: 999px;
+  font: 500 .8125rem/1.2 var(--font-body); cursor: pointer;
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+.fav-btn:hover { border-color: var(--ink-2); color: var(--ink); }
+.fav-btn svg, .fav-toggle svg { flex-shrink: 0; }
+.fav-btn.is-active, .fav-toggle.is-active { background: var(--bad-soft); border-color: #F2C4CA; color: var(--bad); }
+.fav-btn.is-active svg, .fav-toggle.is-active svg { fill: currentColor; }
+.side form { margin: 10px 0 0; }
+
 /* ===== Подвал ===== */
 .footer { padding: 24px 0; background: #fff; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
 

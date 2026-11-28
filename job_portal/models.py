@@ -86,3 +86,12 @@ class Applications(models.Model):
         permissions = [
             ("can_change_status", "может ищменить статус отклика")
         ]
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    vacancy = models.ForeignKey(Vacancy, on_delete = models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'vacancy')
